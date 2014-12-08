@@ -89,6 +89,27 @@ io.on('connection', function(socket){
 	socket.on('paddle2Down', function(socket){
 		io.emit('paddle2Down');
 	});
+
+
+	//restartGame
+	socket.on("resetAll", function(socket){
+		initializedUI = "locked";
+
+		player1Connected = "null";
+
+		player2Connected = "null";
+
+		gameStarted = "null";
+
+		io.emit('connected');
+		io.emit('restart');
+	
+
+		app.get('/', function(req, res){
+			res.sendFile('/public/index.html');
+		});
+
+	});
 	
 });
 

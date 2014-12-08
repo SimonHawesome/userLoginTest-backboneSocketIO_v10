@@ -4,7 +4,17 @@ $( document ).ready(function() {
 
   var gameStarted = false;
 
+
   socket.on('connected', function(){
+
+    //restart game
+    $("#restartBtn").click(function(){
+      socket.emit("resetAll");
+    });
+
+    socket.on("restart", function(){
+      location.reload();
+    });
 
     socket.on('initialize', function(){
 
