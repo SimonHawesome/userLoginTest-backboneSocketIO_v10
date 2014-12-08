@@ -64,7 +64,7 @@ $( document ).ready(function() {
     var qrcode = new QRCode(document.getElementById("player2Login"), {
       width : 300,
       height : 300,
-      text: "http://192.168.0.94:3000"
+      text: "https://glacial-lowlands-1865.herokuapp.com/"
     });
   }
 
@@ -72,7 +72,7 @@ $( document ).ready(function() {
     var qrcode = new QRCode(document.getElementById("player1Login"), {
       width : 300,
       height : 300,
-      text: "http://192.168.0.94:3000"
+      text: "https://glacial-lowlands-1865.herokuapp.com/"
     });
   }
 
