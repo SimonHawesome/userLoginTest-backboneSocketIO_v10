@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backbone, Socket IO test</title>
+  <link href="./css/styles.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+
+	<div id='mainContain' class="gameContain"></div>
+
+	<script id="QRcode" type="text/template">
+		
+		<div id="<%= playerPos %>" class="qrSection">
+			
+		</div>
+		<p> <%= text %> </p>
+		
+	</script>
+
+	<script id="gameUI" type="text/template">
+			
+		<canvas id="canvas">
+		</canvas>
+		
+	</script>
+
+	<script id="controllerUI" type="text/template">
+		<div id="controllerContain" class="<% playerControlPos %>">
+			<div id="funStick"></div>
+		</div>
+	</script>
+	
+	<script src="./js/libs/jquery.js"></script>
+	<script src="./js/libs/underscore.js"></script>
+	<script src="./js/libs/backbone.js"></script>
+	<script src="./js/libs/hammer.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="./js/libs/qrcode.min.js"></script>
+	<script src="./js/models/gameUI.js"></script>
+	<script src="./js/models/qrCode.js"></script>
+	<script src="./js/models/controller.js"></script>
+    <script src="./js/views/gameView.js"></script>
+    <script src="./js/views/qrCodeView.js"></script>
+    <script src="./js/views/controllerView.js"></script>
+    
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.14.2/utils/Draggable.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.14.2/TweenLite.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.14.2/plugins/CSSPlugin.min.js"></script>
+	<script src="./instantiateModels.js"></script>
+    <script src="./testApp.js"></script>
+
+</body>
+</html>
