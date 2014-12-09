@@ -110,6 +110,11 @@ io.on('connection', function(socket){
 		});
 
 	});
+
+	//move ball
+	socket.on("moveBall", function(socket){
+		io.emit("moveBall");
+	})
 	
 });
 

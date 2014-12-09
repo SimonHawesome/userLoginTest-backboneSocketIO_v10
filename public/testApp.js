@@ -4,6 +4,15 @@ $( document ).ready(function() {
 
   var gameStarted = false;
 
+  //Check if ball is moving
+  var ballMoving = "false";
+
+  //player Score
+  var player1Score = 0;
+  var player2Score = 0;
+
+  $("#p1_score").html(player1Score);
+  $("#p2_score").html(player2Score);
 
   socket.on('connected', function(){
 
@@ -17,10 +26,6 @@ $( document ).ready(function() {
     });
 
     socket.on('initialize', function(){
-
-      // $(".gameContain").html(appendGame.render().el);
-      //   appendPong();
-      //   gameStarted = true;
 
       $("#mainContain").html(qrCodeGen1.render().el);
       renderQR();
@@ -68,13 +73,18 @@ $( document ).ready(function() {
       
     });
 
+    socket.on('moveBall', function(){
+      console.log(ballMoving);
+      ballMoving = "true";
+    });
+
   });
 
   function renderQR2(){
     var qrcode = new QRCode(document.getElementById("player2Login"), {
       width : 300,
       height : 300,
-      text: "https://glacial-lowlands-1865.herokuapp.com/"
+      text: "http://192.168.0.94:3000"
     });
   }
 
@@ -82,7 +92,7 @@ $( document ).ready(function() {
     var qrcode = new QRCode(document.getElementById("player1Login"), {
       width : 300,
       height : 300,
-      text: "https://glacial-lowlands-1865.herokuapp.com/"
+      text: "http://192.168.0.94:3000"
     });
   }
 
@@ -96,24 +106,32 @@ $( document ).ready(function() {
       e.preventDefault(); 
     }
 
-    Draggable.create("#funStick", {
-      type:"y", 
-      edgeResistance:0.65, 
-      bounds:"#controllerContain",
-      onDragEnd:function(e) {
+    var paddleBtn = document.getElementById("paddle_btn");
 
-        TweenLite.to($('#funStick'), 0.2, {transform: "translate3d(0px, 0px, 0px);"});
+    var paddleHam = new Hammer(paddleBtn, {
+      drag: true,
+      drag_block_vertical: true,
+      drag_min_distance: 5,
+      tap: true,
+      release: true
+    });
 
-      },
-      onDrag:function() { 
-        if(this.y < 0){
-          socket.emit('paddle' + player + 'Up');
-        }else if(this.y > 0){
-          socket.emit('paddle' + player + 'Down');
-        }
-        
-      }
+    paddleHam.on('dragup', function(event) {
+      TweenLite.to(paddleBtn, 5, {
+        "background-color": "#2ecc71"
+      });
+        socket.emit('paddle' + player + 'Up');
+    });
 
+    paddleHam.on('dragdown', function() {
+      TweenLite.to(paddleBtn, 1, {
+        "background-color": "#3498db"
+      });
+        socket.emit('paddle' + player + 'Down');
+    });
+
+    paddleHam.on('tap', function() {
+        socket.emit('moveBall');
     });
 
   }
@@ -127,12 +145,11 @@ $( document ).ready(function() {
 
     //set width and height of canvas
     var W = 800;
-        H = 600;
+        H = 625;
 
     //Apply to canvas element
     canvas.height = H;
     canvas.width = W;
-
 
     //create the ball element
     var ball = {},
@@ -167,11 +184,11 @@ $( document ).ready(function() {
       color: "#e74c3c",
 
       x: 0,
-      y: 237,
+      y: 250,
 
       draw: function(xPos, yPos){
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, 30, 125)
+        ctx.fillRect(this.x, this.y, 30, 150)
       }
     }
 
@@ -179,11 +196,11 @@ $( document ).ready(function() {
       color: "#e74c3c",
 
       x: 770,
-      y: 237,
+      y: 250,
 
       draw: function(xPos, yPos){
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, 30, 125)
+        ctx.fillRect(this.x, this.y, 30, 150)
       }
     }
 
@@ -199,23 +216,34 @@ $( document ).ready(function() {
       paddle_p1.draw();
       paddle_p2.draw();
 
-      ball.y += ball.vy;
-      ball.x -= ball.vx;
+      if(ballMoving === "true"){
+        ball.y += ball.vy;
+        ball.x -= ball.vx;
+      }else if(ballMoving === "p1Win"){
+        ball.y = paddle_p1.y + 73;
+        ball.x = paddle_p1.x + 55;
+      }else if(ballMoving === "p2Win"){
+        ball.y = paddle_p2.y + 73;
+        ball.x = paddle_p2.x - 25;
+      }else{
+        ball.y = paddle_p1.y + 73;
+        ball.x = paddle_p1.x + 55;
+      }
 
       //Make the ball bounce off of surfaces
       //left wall
       if(ball.x + ball.radius < 40){
-        ball.x = 20;
-        ball.x -= ball.vx;
-        ball.vx /= -bounceFactor;
-        console.log(ball.vx);
+        ballMoving = "p2Win";
+        player2Score ++;
+        
+        $("#p2_score").html(player2Score);
 
       //right wall
       }else if(ball.x + ball.radius > W + 10){
-        ball.x = W - ball.radius;
-        ball.x += ball.vx;
-        ball.vx *= -bounceFactor;
-        console.log(ball.vx);
+        ballMoving = "p1Win";
+        player1Score ++;
+
+        $("#p1_score").html(player1Score);
 
       //bottom wall
       }else if(ball.y + ball.radius > H + 10){
@@ -259,32 +287,30 @@ $( document ).ready(function() {
     }
 
     socket.on('paddle1Up', function(){
-      console.log(paddle_p1.y);
-      if(paddle_p1.y != -3){
+      if(paddle_p1.y > 0){
         paddle_p1.y -= 20;
       }
 
     });
 
     socket.on('paddle1Down', function(){
-      console.log(paddle_p1.y);
-      if(paddle_p1.y != 477){
+      if(paddle_p1.y < 480){
         paddle_p1.y += 20;
       }
     });
 
     socket.on('paddle2Up', function(){
-      if(paddle_p2.y != -3){
+      if(paddle_p2.y > 0){
         paddle_p2.y -= 20;
       }
+
     });
 
     socket.on('paddle2Down', function(){
-      if(paddle_p2.y != 477){
+      if(paddle_p2.y < 480){
         paddle_p2.y += 20;
       }
     });
-
     setInterval(update, 1000/60);
 
   }
